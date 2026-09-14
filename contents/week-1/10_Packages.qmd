@@ -100,7 +100,7 @@ MASS::select(...)   # For the MASS function
 
 ## Additional resources
 
--   R manual by the R Core Team, [Section 13 on packages](https://cran.r-project.org/doc/manuals/r-release/R-intro.html#Packages).
+- R manual by the R Core Team, [Section 13 on packages](https://cran.r-project.org/doc/manuals/r-release/R-intro.html#Packages).
 
 <br><br>
 

@@ -1,0 +1,391 @@
+---
+title: "Data manipulation with dplyr"
+engine: knitr
+---
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+#| include: false
+library(tidyverse)
+```
+
+<br>
+The `dplyr` package is one of the `tidyverse` packages. It greatly simplifies how we work with data frames (tibbles) in R and speeds up any associated computations. `dplyr` uses a **grammar** for data manipulation and working with data frames. This grammar consists of a number of different **verbs**. These verbs allow us to communicate how we are manipulating a data frame so that other people can understand it easily.
+
+For all the examples in this section, we are going to use the wine quality dataset that we used previously. It can be loaded using:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df <- read_csv(
+    './ressource/wine_quality.csv',
+    col_types = 'idddddddddddi'
+)
+```
+
+
+## The dplyr verbs
+
+Almost all data analytics projects will require us to use $5$ basic `dplyr` verbs. These are:
+
+- `filter()` - extracts a subset of the rows of a data frame using logical conditions  
+- `arrange()` - reorder the rows of a data frame  
+- `select()` - extract a subset of the columns of a data frame 
+- `mutate()` - add new variables/columns or transform existing variables to a data frame
+- `summarise()/summarize()` - calculate summary statistics of different variables in a data frame
+    
+::: {.callout-note appearance="simple"}
+Note that the `filter()` and `arrange()` functions work on the rows of a data frame while the `select()`, `mutate()` and `summarise()` functions manipulate the columns.
+:::
+
+Another (very) useful verb is `group_by()`. This performs each of the previous operations by different strata as given by categories or groups (e.g. by notes in the wine quality dataset). The pipe operator, `|>` (default R operator since 4.1) or `%>%` (tidyverse operator), is used to connect several of these verbs together into a pipeline.
+
+::: {.callout-note appearance="simple"}
+Note that R 4.1 introduced a native pipe operator `|>`. It mostly replaced the tidyverse operator since. See [here](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe) for an article on the differences between the two.
+:::
+
+
+All of the `dplyr` functions work in a similar way. The first argument is a data frame (or tibble). Subsequent arguments describe what to do with the data frame (or tibble) using the variable names. The result of running the function(s) is a new data frame (or tibble).
+
+::: {.callout-note appearance="simple"}
+Note that the data must be in **tidy** format, i.e. one observation per row, one variable per column, one value per cell.
+:::
+
+## What is `filter()`?
+
+The `filter()` function extracts subsets of rows from a data frame. It selects the **rows** using logical operators/conditions.  The logical conditions relate to the **columns** of the data frame.
+
+
+There are two ways to use the `filter()` command. The first is:
+```{r}
+#| class-output: outputcode
+#| eval: false
+filter(data, condition_1, condition_2, condition_3)
+```
+
+The second uses the pipe:
+```{r}
+#| class-output: outputcode
+#| eval: false
+data |> filter(condition_1, condition_2, condition_3)
+```
+
+All conditions must be `TRUE` for the row to be extracted.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+Let's use the wine quality data to demonstrate. The `tidyverse` packages must also be loaded!
+
+- One condition
+
+To start, we will use a single condition in the `filter()` command. To filter all wines (rows) with alcohol by volume larger than $10$, we use:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+filter(df, alcohol > 10)
+```
+
+We can do exactly the same using the pipe, `|>`:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> filter(alcohol > 10)
+```    
+
+- Two conditions
+
+Next extract wines with a quality equal to $8$ and with alcohol by volume larger than $10$:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> filter(alcohol > 10, quality == 8)
+```
+
+:::
+
+## What is `arrange()`?
+
+The `arrange()` function orders the rows of a data frame. It arranges the rows by the values of selected columns. The default is to arrange the values in ascending order (from smallest to largest).
+
+There are two ways to use the `arrange()` command. The first is:
+```{r}
+#| class-output: outputcode
+#| eval: false
+arrange(data, column_1, column_2, column_3)
+```
+
+The second uses the pipe:
+```{r}
+#| class-output: outputcode
+#| eval: false
+data |> arrange(column_1, column_2, column_3)
+```
+We will use the second version.
+
+The default arrangement from smallest to largest can be changed using the `desc()` function. `NA` values are automatically sorted to the end.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+- Ascending order
+
+To arrange all wines by their fixed acidity:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> arrange(fixed_acidity)
+```
+
+Notice the values in the `bill_length_mm` column. It is much more difficult to do this in base R!
+
+- Descending order
+
+To arrange the rows in descending value of fixed acidity:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> arrange(desc(fixed_acidity))
+```
+:::
+
+### Multiple columns
+
+You can also arrange multiple columns using `arrange()`. This works if there are multiple repeating values in column 1, and then column 2 is arranged.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> arrange(fixed_acidity, volatile_acidity)
+```
+
+:::
+
+## What is `select()`?
+
+The `select()` function is used to select columns of a data frame that you want to focus on. In any data analysis project, you will have a large data frame that contains all of the data. However, for a particular analysis (or part of an analysis) only a subset of these data are needed.
+
+There are two ways to use the `select()` command. The first is:
+```{r}
+#| class-output: outputcode
+#| eval: false
+select(data, column_1, column_2, column_3)
+```
+
+The second uses the pipe:
+```{r}
+#| class-output: outputcode
+#| eval: false
+data |> select(column_1, column_2, column_3)
+```
+We will use the second version.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+- Select one column
+
+To select just the quality from the wine quality data:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(quality)
+```
+
+- Select all columns except one
+
+To select everything *except* the quality column:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(-quality)
+```
+
+- Select multiple columns
+
+To select the quality and alcohol columns:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(alcohol, quality)
+```
+
+We can use the minus sign to select everything except these columns:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(-alcohol, -quality)
+```
+
+- Select a range of columns
+
+You can use the `:` to select all columns that are between two columns (inclusive). For the wine quality data remember that:
+```{r}
+#| class-output: outputcode
+#| eval: true
+names(df)
+```
+
+There are $13$ columns, with names as given above. To extract all the columns between `chlorides` and `pH` (inclusive) use:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(chlorides:pH)
+```
+
+Putting the minus sign in front drops these columns:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(-(chlorides:pH))  # note the brackets
+```
+
+:::
+
+### Re-arranging columns
+
+You can also re-arrange the order of the columns using `select()` and `everything()`.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+To put the `quality` column first, followed by everything else:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> select(quality, everything())
+```
+
+:::
+
+## What is `mutate()`?
+
+It is often useful to create new variables that are derived from existing ones in a data frame. The `mutate()` function is used to compute transformations of existing variables (columns) in a data frame. For example, we might want to transform from hours to minutes, millimeters to centimeters, etc. `mutate()` provides a simple interface to achieve this.
+
+To use `mutate()` with the pipe:
+```{r}
+#| class-output: outputcode
+#| eval: false
+data |> 
+    mutate(
+        new_column_name_1 = func_of_column_name_X,
+        new_column_name_2 = func_of_column_name_Y,
+        new_column_name_3 = func_of_column_name_Z
+    )
+```
+
+The transformed `X`, `Y`, `Z` columns will then be stored in new columns with the column names specified on the left-hand side of the `=` sign.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+We will first compute the ratio between `free_sulfur_dioxide` and `total_sulfur_dioxode`:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+new_df <- df %>%
+    mutate(ratio_sulfur_dioxide = free_sulfur_dioxide / total_sulfur_dioxide) 
+```
+
+and store the results in a new data frame (tibble), `new_df`.
+
+Extract just the `free_sulfur_dioxide`, `total_sulfur_dioxide` and `ratio_sulfur_dioxide` columns:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+new_df %>%
+    select(free_sulfur_dioxide, total_sulfur_dioxide, ratio_sulfur_dioxide)
+```
+
+:::
+
+## What is `summarise()`?
+
+The `summarise()` function is used to compute statistical summaries of the variables (columns) or rows in a data frame. It will take a vector of data and reduce it to a single summary statistic, e.g. mean, median, min, max. The `summarise()` function can be used directly, or with the pipe.
+
+To use `summarise()` with the pipe:
+
+```{r}
+#| class-output: outputcode
+#| eval: false
+data |> 
+    summarise(
+        summary_1 = summary_func_1(column_name),
+        summary_2 = summary_func_2(column_name),
+        summary_3 = summary_func_3(column_name)
+    )
+```
+
+The `data` is the data frame or tibble that you want to summarise. The `summary_1/2/3/etc` values are the names of the summary statistics. The `summary_func_1/2/3/etc` values are the summary functions used, e.g. mean, median, min, max.  The `column_name` is the vector of data to summarise (typically a column(s) of the data frame).
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+To calculate the mean alcohol by volume in the wine quality data:
+
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> 
+    summarise(
+        mean_alcohol = mean(alcohol, na.rm = TRUE)
+    )
+```
+
+This returns a tibble with $1$ element, the mean alcohol by volume. We could store this into a new object if needed.
+
+:::
+
+You could also use other summary functions, `median()`, `sd()`, `min()`, `max()`, `IQR()`, etc. 
+
+
+### Calculating grouped summaries
+
+Often `summarise()` is used with the `group_by()` function. `group_by()` allows us to "split" our data into sections as defined by our *grouping* variable. We can then perform calculations on each section separately. When used with `summarise()`, summaries are calculated separately for each of the unique groups created by `group_by()`.
+
+::: {.callout-note appearance="simple"}
+
+## Example
+
+To calculate the mean alcohol by volume for each quality:
+```{r}
+#| class-output: outputcode
+#| eval: true
+df |> 
+    group_by(quality) |> 
+    summarise(mean_alcohol = mean(alcohol, na.rm = TRUE))
+```
+
+A tibble with $6$ rows and $2$ columns is returned. The first column contains the group names and the second the corresponding mean values. 
+
+:::
+
+## Additional resources
+
+* The `dplyr` [website](https://dplyr.tidyverse.org).
+
+* `dplyr` [cheat sheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-transformation.pdf).
+
+* [An Article](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe) on the difference between the pipes.
+
+<br><br>
+
+::: {style="font-size: 0.875em;"}
+[Back](/weeks/week-2.qmd) ⏎
+:::

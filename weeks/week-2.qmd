@@ -1,0 +1,57 @@
+---
+title: "Tidyverse"
+editor: visual
+---
+
+
+The **tidyverse** is a collection of interconnected R packages designed to streamline the data manipulation and visualization process. Rooted in the principles of simplicity and consistency, the tidyverse offers a cohesive ecosystem that empowers users to efficiently transform, model, and visualize data. By adopting a consistent grammar of data manipulation, encapsulated in the **dplyr** package, and emphasizing the use of tidy data principles, the tidyverse enables data analysts and scientists to tackle complex tasks with greater clarity and efficiency. Through the integration of various specialized packages, such as **ggplot2** for plotting and visualization, **tidyr** for data tidying, and **purrr** for functional programming, the tidyverse facilitates a comprehensive and coherent approach to working with data in R. It is maintained by Posit (the company behind RStudio).
+
+Prior to diving into the materials, ensure that you have the `tidyverse` installed. To do so, run the command (it may take a while...):
+
+```{r}
+#| eval: false
+install.packages('tidyverse')
+```
+
+Then, the library is assumed to be loaded for all materials:
+
+```{r}
+#| eval: false
+library(tidyverse)
+```
+
+## Prepare
+
+📖 Principles of the [tidyverse](/contents/week-2/01_tidyverse.qmd)
+
+📖 Reading data with [tibble and readr](/contents/week-2/02_readr_tibble.qmd)
+
+📖 Tidy data with [tidyr](/contents/week-2/03_tidyr.qmd)
+
+📖 Data manipulation with [dplyr](/contents/week-2/04_dplyr.qmd)
+
+📖 Functional programming with [purrr](/contents/week-2/05_purrr.qmd)
+
+📖 Data visualisation with [ggplot2](/contents/week-2/06_ggplot.qmd)
+
+📖 Other packages: [stringr, forcats and lubridate](/contents/week-2/07_others.qmd)
+
+## Source code
+
+🧑‍💻 [Source code](/contents/week-2/source/all_code_chunks.R)
+
+## Questionnaire
+
+⌨️ [Questionnaire](/questionnaire/qcm-week-2.qmd)
+
+## Practice
+
+📋 [Tutorials](/labs/lab-week-2.qmd)
+
+⌨️ [Solution proposal](/labs/solutions/week-2.R)
+
+<br><br>
+
+::: {style="font-size: 0.875em;"}
+Back to [course schedule](/ "Course schedule") ⏎
+:::
