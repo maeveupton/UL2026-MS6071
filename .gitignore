@@ -13,3 +13,4 @@ _environment.local
 /_*.local
 
 /site_libs
+**/*.quarto_ipynb
